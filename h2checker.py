@@ -3,9 +3,9 @@ import requests,alpnchecker
 
 def excuteCheckFunc(url):
 	if url.startswith('https://'):
-		checkH2S(url)
+		return checkH2S(url)
 	elif url.startswith('http://'):
-		checkH2(url)
+		return checkH2(url)
 
 def checkH2S (url):
 	return alpnchecker.alpnChecker(url)
@@ -16,7 +16,6 @@ def checkH2 (url):
 	r = requests.get(url, headers=headers, allow_redirects=False)
 	#Check HTTP
 	if r.status_code == 101:
-		print ('This domain supports HTTP/2')
 		return alpnchecker.alpnChecker(url)
 	elif r.status_code == 301 or r.status_code == 302:
 		location =  r.headers['Location']
@@ -24,9 +23,7 @@ def checkH2 (url):
 			url = location
 		else:
 			url = url + "/" + location
-		excuteCheckFunc(url)
+		return excuteCheckFunc(url)
 	else:
-		print ('This domain does not support HTTP/2 with h2c')
-		print (r.status_code);
-		print(alpnchecker.alpnChecker(url))
-		return alpnchecker.alpnChecker(url)
+		print('HOST is ' + url)
+		return False

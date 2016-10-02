@@ -17,5 +17,5 @@ def alpnChecker(url):
         else:
             return False
     except ConnectionError:
-        print("this url can not test")
+        print('Socket ConnectionError')
         return False
