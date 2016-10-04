@@ -9,9 +9,8 @@ def getSrcPath(src, url, originPath):
         src = src[:src.find("\"")]
         src = src.replace("../","/")
         logger.info(src)
-        src = src[:src.rfind("/")]
-        print(src)
-        makeDirectory(originPath +"/"+src)
+        srcPath = src[:src.rfind("/")]
+        makeDirectory(originPath +"/"+srcPath)
         resource = requests.get(url+"/"+src).content
         with open(originPath+"/"+src, "wb") as code:
              code.write(resource)
@@ -23,8 +22,8 @@ def getHrefPath(href, url, originPath):
         href = href[:href.find("\"")]
         href = href.replace("../", "/")
         logger.info(href)
-        href = href[:href.rfind("/")]
-        makeDirectory(originPath + "/" + href)
+        hrefPath = href[:href.rfind("/")]
+        makeDirectory(originPath + "/" + hrefPath)
         resource = requests.get(url + "/" + href).content
         with open(originPath + "/" + href, "wb") as code:
             code.write(resource)
