@@ -1,17 +1,64 @@
-import urllib, requests
+import requests,os,logging,urllib.request
 from bs4 import BeautifulSoup
-from selenium import webdriver
+logger = logging.getLogger(__name__)
 
-def spider(url):
-    headers = {'Accept': '*/*', 'Accept-Language': 'ko-KR,ko;q=0.8,en-US;q=0.6,en;q=0.4', 'user-agent': 'my-app/0.0.1',
-               'Connection': 'Upgrade, HTTP2-Settings', 'Upgrade': 'h2c',
-               'HTTP2-Settings': '<base64url encoding of HTTP/2 SETTINGS payload>'}
-    source_code = requests.get(url, headers=headers, allow_redirects=False)
-    plain_text = source_code.text
-    soup = BeautifulSoup(plain_text, 'lxml')
-    imgs = soup.find('img')['src']
+def getSrcPath(src, url, originPath):
+    src = str(src)
+    if("http" not in src):
+        src = src[src.find("src=\"")+5:]
+        src = src[:src.find("\"")]
+        src = src.replace("../","/")
+        logger.info(src)
+        srcPath = src.split("/")
+        wholePath = ""
+        for path in srcPath[:len(srcPath)-1]:
+            wholePath += "/"+path
+            makeDirectory(originPath+wholePath)
+        resource = requests.get(url+"/"+src).content
+        with open(originPath+"/"+src, "wb") as code:
+             code.write(resource)
+
+def getHrefPath(href, url, originPath):
+    href = str(href)
+    if ("http" not in href):
+        href = href[href.find("href=\"")+6:]
+        href = href[:href.find("\"")]
+        href = href.replace("../", "/")
+        logger.info(href)
+        hrefPath = href.split("/")
+        wholePath = ""
+        for path in hrefPath[:len(hrefPath) - 1]:
+            wholePath += "/"+path
+            makeDirectory(originPath+wholePath)
+        resource = requests.get(url+"/"+href).content
+        with open(originPath+"/"+href, "wb") as code:
+             code.write(resource)
+
+def makeDirectory(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+def resDownload(url): #img, js, css
+    logger.info('*********** Resource Download Start ***********')
+    html = requests.get(url).content
+    originPath = url + '/origin/';  # 사이트 원본 Path
+    optPath = url + '/opt/'  # 사이트 최적화 Path
+    makeDirectory(originPath)
+    # makeDirectory(optPath)
+    soup = BeautifulSoup(html, 'lxml')
+    # html
+    with open(originPath + "index.html", "wb") as code:
+        code.write(html)
+    # image
+    imgs = soup.findAll('img', {"src": True})
     for img in imgs:
-        print(img)
-    print(len(imgs))
-
-spider('http://www.naver.com')
+        getSrcPath(img, url, originPath)
+    # .js
+    scripts = soup.findAll('script', {"src": True})
+    for script in scripts:
+        getSrcPath(script, url, originPath)
+    # .css
+    stylesheets = soup.findAll('link', {"type": "text/css", "href": True})
+    for stylesheet in stylesheets:
+        getHrefPath(stylesheet, url, originPath)
+    logger.info('*********** Resource Download End ***********')

@@ -1,9 +1,11 @@
-import h2checker,alpnchecker
-
-url = 'https://www.naver.com'
-#url = 'http://www.facebook.com'
+import h2checker, logging,coloredlogs
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+#url = 'http://www.facebook.com/'
+url = 'https://www.somacon.kr/'
 h2support = h2checker.excuteCheckFunc(url)
+
 if(h2support):
-    print('This domain supports HTTP/2')
+    logger.info('This domain supports HTTP/2')
 else:
-    print('This domain dose not supports HTTP/2')
+    logger.info('This domain dose not supports HTTP/2')
