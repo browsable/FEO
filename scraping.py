@@ -9,11 +9,9 @@ def getSrcPath(src, url, originPath):
         src = src[:src.find("\"")]
         src = src.replace("../","/")
         logger.info(src)
-        srcPath = src.split("/")
-        wholePath = ""
-        for path in srcPath[:len(srcPath)-1]:
-            wholePath += "/"+path
-            makeDirectory(originPath+wholePath)
+        src = src[:src.rfind("/")]
+        print(src)
+        makeDirectory(originPath +"/"+src)
         resource = requests.get(url+"/"+src).content
         with open(originPath+"/"+src, "wb") as code:
              code.write(resource)
@@ -25,14 +23,11 @@ def getHrefPath(href, url, originPath):
         href = href[:href.find("\"")]
         href = href.replace("../", "/")
         logger.info(href)
-        hrefPath = href.split("/")
-        wholePath = ""
-        for path in hrefPath[:len(hrefPath) - 1]:
-            wholePath += "/"+path
-            makeDirectory(originPath+wholePath)
-        resource = requests.get(url+"/"+href).content
-        with open(originPath+"/"+href, "wb") as code:
-             code.write(resource)
+        href = href[:href.rfind("/")]
+        makeDirectory(originPath + "/" + href)
+        resource = requests.get(url + "/" + href).content
+        with open(originPath + "/" + href, "wb") as code:
+            code.write(resource)
 
 def makeDirectory(directory):
     if not os.path.exists(directory):
