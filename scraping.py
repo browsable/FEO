@@ -13,6 +13,7 @@ def resDownload(url): #img, js, css
 
     html = r.content
     soup = BeautifulSoup(html, 'lxml')
+
     # image
     imgs = soup.findAll('img', {"src": True})
     for imgURL in imgs:
