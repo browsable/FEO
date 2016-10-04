@@ -17,7 +17,7 @@ def getSrcPath(src, url, originPath):
 
 def getHrefPath(href, url, originPath):
     href = str(href)
-    if ("http" not in href):
+    if ("//" not in href):
         href = href[href.find("href=\"")+6:]
         href = href[:href.find("\"")]
         href = href.replace("../", "/")

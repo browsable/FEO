@@ -2,19 +2,19 @@ import requests,socket,ssl,logging
 logger = logging.getLogger(__name__)
 
 # make request headers to check h2c support
-headers = {'Accept': '*/*', 'user-agent': 'h2-check/1.0.1', 'Connection': 'Upgrade, HTTP2-Settings',
-           'Upgrade': 'h2c', 'HTTP2-Settings': '<base64url encoding of HTTP/2 SETTINGS payload>'}
 
 def excuteCheckFunc(domain):
     # send GET request with the upgrade headers
+    headers = {'Accept': '*/*', 'user-agent': 'h2-check/1.0.1', 'Connection': 'Upgrade, HTTP2-Settings',
+               'Upgrade': 'h2c', 'HTTP2-Settings': '<base64url encoding of HTTP/2 SETTINGS payload>'}
+    if (not domain.startswith('://')):
+        domain = 'http://' + domain
     req = requests.get(domain, headers=headers, allow_redirects=True)
-    url = req.url
-    print(url)
-
-    if url.startswith('https://'):
-        return (checkH2S(url),url)
-    elif url.startswith('http://'):
-        return (checkH2(req),url)
+    url_redirect = req.url
+    if url_redirect.startswith('https://'):
+        return (checkH2S(url_redirect),url_redirect)
+    elif url_redirect.startswith('http://'):
+        return (checkH2(req),url_redirect)
 
 # http/2 check with h2c
 def checkH2(req):
@@ -37,7 +37,7 @@ def checkH2S(url):
     # list up protocol candidates
     ctx.set_alpn_protocols(['h2', 'spdy/3', 'http/1.1'])
 
-    # create a socket connection using the context and the fefault https port
+    # create a socket connection using the context and the default https port
     conn = ctx.wrap_socket(
         socket.socket(socket.AF_INET, socket.SOCK_STREAM), server_hostname=HOST)
     conn.connect((HOST, 443))
